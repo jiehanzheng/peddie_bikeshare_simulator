@@ -18,7 +18,7 @@ enum Station implements Locatable {
   private int locationY;
   private int numBikes;
   
-  Station(int locationX, int locationY, int numBikes) {
+  private Station(int locationX, int locationY, int numBikes) {
     this.locationX = locationX;
     this.locationY = locationY;
     this.numBikes  = numBikes;
@@ -31,14 +31,16 @@ enum Station implements Locatable {
     pg.ellipse(locationX, locationY, 30, 30);
   }
   
-  void drawNumBikes(PGraphics pg) {
+  public void drawNumBikes(PGraphics pg) {
     pg.text(numBikes, locationX + 14, locationY - 8);
   }
   
-  int getNumBikes() { return numBikes; }
+  public int getNumBikes() { return numBikes; }
   
-  void takeBike() { numBikes--; }
-  void returnBike() { numBikes++; }
+  public void takeBike() { numBikes--; }
+  public void returnBike() { numBikes++; }
+  
+  public void resetNumBikes() { numBikes = 0; }
   
   public double distanceTo(Locatable another) {
     return Math.sqrt(Math.pow(getX() - another.getX(), 2) + Math.pow(getY() - another.getY(), 2));

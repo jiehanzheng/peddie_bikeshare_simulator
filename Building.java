@@ -30,7 +30,7 @@ enum Building implements Locatable {
   private Station station;
   private int numOccupants;
   
-  Building(int locationX, int locationY, Station station) {
+  private Building(int locationX, int locationY, Station station) {
     this.locationX = locationX;
     this.locationY = locationY;
     this.station   = station;
@@ -40,17 +40,18 @@ enum Building implements Locatable {
   public int getY() { return locationY; }
   public Station getClosestStation() { return station; }
   
-  void setNumOccupants(int num) { numOccupants = num; }
+  public void setNumOccupants(int num) { numOccupants = num; }
+  public void resetNumOccupants() { setNumOccupants(0); } 
   
   public void markLocation(PGraphics pg) {
     pg.ellipse(locationX, locationY, 10, 10);
   }
   
-  void drawNumOccupants(PGraphics pg) {
+  public void drawNumOccupants(PGraphics pg) {
     pg.text(numOccupants, locationX + 6, locationY + 12);
   }
   
-  void drawLineToStation(PGraphics pg) {
+  public void drawLineToStation(PGraphics pg) {
     pg.line(locationX, locationY, station.getX(), station.getY());
   }
   

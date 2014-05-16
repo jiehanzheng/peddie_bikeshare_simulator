@@ -1,16 +1,68 @@
-TransitionType[] transitionQueue = { TransitionType.CLASS_PERIOD, 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
+final double PARTICIPATION_RATE = 18d/25;
+// Mondays, Fridays
+TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
                                      TransitionType.CLASS_PERIOD,
-                                     TransitionType.DMX,
+                                     TransitionType.CLASS_PERIOD,
+                                     TransitionType.CHAPEL,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.LUNCH,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.SPORTS,
                                      TransitionType.HOME };
+
+// Wednesday
+//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.COMMUNITY_MEETING,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.LUNCH,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.SPORTS,
+//                                     TransitionType.HOME };
+
+// Tuesdays, Thursdays
+//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.DMX,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.LUNCH,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.SPORTS,
+//                                     TransitionType.HOME };
+
+// Saturdays
+//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.LUNCH,
+//                                     TransitionType.SPORTS,
+//                                     TransitionType.HOME };
 int currentTransition = -1;
 
 PImage mapImage;
 ArrayList<Student> students;
+
+void setup() {
+  populateStudents();
+  
+  // if the following line is uncommented, all visual components gets disabled
+//  runBatchSimulations(1000, "TueThu");
+  
+  mapImage = loadImage("map.png");
+  size(mapImage.width/2, mapImage.height/2, "processing.core.PGraphicsRetina2D");
+  hint(ENABLE_RETINA_PIXELS);
+  
+  println("Press J to simulate a transition.");
+}
 
 void populateStudents() {
   addStudentsToBuilding(Building.POTTER_SOUTH, 36);
@@ -35,19 +87,9 @@ void transition(TransitionType type) {
 }
 
 void addStudentsToBuilding(Building building, int numStudents) {
-  for (int i = 1; i <= numStudents; i++) {
+  for (int i = 1; i <= numStudents * PARTICIPATION_RATE; i++) {
     Student.students.add(new Student(building));
   }
-}
-
-void setup() {
-  mapImage = loadImage("map.png");
-  size(mapImage.width/2, mapImage.height/2, "processing.core.PGraphicsRetina2D");
-  hint(ENABLE_RETINA_PIXELS);
-  
-  populateStudents();
-  
-  println("Press J to simulate a transition.");
 }
 
 void draw() {
@@ -113,4 +155,65 @@ void keyPressed() {
     currentTransition++;
   
   transition(transitionQueue[currentTransition]);
+}
+
+void runBatchSimulations(int numSimulations, String name) {
+  // init csv writer
+  Table table = new Table();
+  
+  for (Station station : Station.values()) {
+    table.addColumn(station.name() + "_min");
+    table.addColumn(station.name() + "_max");
+//    table.addColumn(station.name() + "_mean");
+//    table.addColumn(station.name() + "_stDev");
+    table.addColumn(station.name() + "_last");
+  }
+    
+  // run simulations
+  //
+  // for each simulation
+  for (int i = 1; i <= numSimulations; i++) {
+    // reset vars
+    Student.students = new ArrayList<Student>();
+    for (Station station : Station.values()) { station.resetNumBikes(); }
+    for (Building building : Building.values()) { building.resetNumOccupants(); }
+    populateStudents();
+    
+    // create DescriptiveStatistics for each station to keep data and descriptive stats
+    HashMap<Station, DescriptiveStatistics> dormStats = new HashMap<Station, DescriptiveStatistics>();
+    for (Station station : Station.values()) {
+      dormStats.put(station, new DescriptiveStatistics());
+    }
+    
+    // record number of bikes at each station, in the morning
+    for (Station station : Station.values()) {
+      dormStats.get(station).addValue(station.getNumBikes());
+    }
+    
+    // for each transition in queue
+    for (int transitionId = 0; transitionId < transitionQueue.length; transitionId++) {
+      // do the transition
+      transition(transitionQueue[transitionId]);
+      
+      // record number of bikes at each station, after each transition
+      for (Station station : Station.values()) {
+        dormStats.get(station).addValue(station.getNumBikes());
+      }
+    }
+    
+    TableRow simulationRow = table.addRow();
+    for (Station station : Station.values()) {
+      simulationRow.setFloat(station.name() + "_min", (float) dormStats.get(station).getMin());
+      simulationRow.setFloat(station.name() + "_max", (float) dormStats.get(station).getMax());
+//      simulationRow.setFloat(station.name() + "_mean", (float) dormStats.get(station).getMean());
+//      simulationRow.setFloat(station.name() + "_stDev", (float) dormStats.get(station).getStandardDeviation());
+      simulationRow.setInt(station.name() + "_last", station.getNumBikes());
+    }
+  }
+  
+  // write csv
+  saveTable(table, "data/" + name + "_x" + numSimulations + ".csv");
+  
+  println("Finished running " + numSimulations + " simulations for " + name + ".");
+  exit();
 }

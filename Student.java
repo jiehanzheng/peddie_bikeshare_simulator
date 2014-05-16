@@ -36,6 +36,12 @@ class Student {
     
     ArrayList<BuildingProbability> buildingProbabilities;
     switch (type) {
+      case BREAKFAST:
+        buildingProbabilities = new ArrayList<BuildingProbability>();
+        buildingProbabilities.add(new BuildingProbability(Building.STUD, 0.451));
+        buildingProbabilities.add(new BuildingProbability(currentBuilding, 0.549));
+        destBuilding = BuildingProbability.pickOne(buildingProbabilities);
+        break;
       case CLASS_PERIOD:
         buildingProbabilities = new ArrayList<BuildingProbability>();
         buildingProbabilities.add(new BuildingProbability(Building.ANNENBERG, 0.4));
@@ -54,6 +60,9 @@ class Student {
         buildingProbabilities.add(new BuildingProbability(Building.STUD, 0.1));
         buildingProbabilities.add(new BuildingProbability(Building.SWIG, 0.05));
         destBuilding = BuildingProbability.pickOne(buildingProbabilities);
+        break;
+      case COMMUNITY_MEETING:
+        destBuilding = Building.THEATER;
         break;
       case CHAPEL:
         destBuilding = Building.CHAPEL;
