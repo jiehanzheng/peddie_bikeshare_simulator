@@ -1,6 +1,7 @@
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 final double PARTICIPATION_RATE = 21d/28;
+
 // Mondays, Fridays
 //TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
 //                                     TransitionType.CLASS_PERIOD,
@@ -55,7 +56,7 @@ void setup() {
   populateStudents();
   
   // if the following line is uncommented, all visual components gets disabled
-//  runBatchSimulations(1000, "TueThu");
+  runBatchSimulations(10000, "TueThu");
   
   mapImage = loadImage("map.png");
   size(mapImage.width/2, mapImage.height/2, "processing.core.PGraphicsRetina2D");
@@ -158,15 +159,30 @@ void keyPressed() {
 }
 
 void runBatchSimulations(int numSimulations, String name) {
-  // init csv writer
-  Table table = new Table();
-  
+  // results table
+  Table resultsTable = new Table();
   for (Station station : Station.values()) {
-    table.addColumn(station.name() + "_min");
-    table.addColumn(station.name() + "_max");
-//    table.addColumn(station.name() + "_mean");
-//    table.addColumn(station.name() + "_stDev");
-    table.addColumn(station.name() + "_last");
+    resultsTable.addColumn(station.name() + "_min");
+    resultsTable.addColumn(station.name() + "_max");
+    resultsTable.addColumn(station.name() + "_last");
+  }
+  
+  // summary table across all simulations
+  Table summaryTable = new Table();
+  summaryTable.addColumn("Dorm");
+  summaryTable.addColumn("min(min)");
+  summaryTable.addColumn("max(max)");
+  summaryTable.addColumn("min(last)");
+  summaryTable.addColumn("max(last)");
+  
+  // create DescriptiveStatistics for each station to keep data and get descriptive stats
+  HashMap<Station, DescriptiveStatistics> stationSummaryStatsMin = new HashMap<Station, DescriptiveStatistics>();
+  HashMap<Station, DescriptiveStatistics> stationSummaryStatsMax = new HashMap<Station, DescriptiveStatistics>();
+  HashMap<Station, DescriptiveStatistics> stationSummaryStatsLast = new HashMap<Station, DescriptiveStatistics>();
+  for (Station station : Station.values()) {
+    stationSummaryStatsMin.put(station, new DescriptiveStatistics());
+    stationSummaryStatsMax.put(station, new DescriptiveStatistics());
+    stationSummaryStatsLast.put(station, new DescriptiveStatistics());
   }
     
   // run simulations
@@ -179,15 +195,15 @@ void runBatchSimulations(int numSimulations, String name) {
     for (Building building : Building.values()) { building.resetNumOccupants(); }
     populateStudents();
     
-    // create DescriptiveStatistics for each station to keep data and descriptive stats
-    HashMap<Station, DescriptiveStatistics> dormStats = new HashMap<Station, DescriptiveStatistics>();
+    // create DescriptiveStatistics for each station to keep data and get descriptive stats
+    HashMap<Station, DescriptiveStatistics> stationStats = new HashMap<Station, DescriptiveStatistics>();
     for (Station station : Station.values()) {
-      dormStats.put(station, new DescriptiveStatistics());
+      stationStats.put(station, new DescriptiveStatistics());
     }
     
     // record number of bikes at each station, in the morning
     for (Station station : Station.values()) {
-      dormStats.get(station).addValue(station.getNumBikes());
+      stationStats.get(station).addValue(station.getNumBikes());
     }
     
     // for each transition in queue
@@ -197,22 +213,42 @@ void runBatchSimulations(int numSimulations, String name) {
       
       // record number of bikes at each station, after each transition
       for (Station station : Station.values()) {
-        dormStats.get(station).addValue(station.getNumBikes());
+        stationStats.get(station).addValue(station.getNumBikes());
       }
     }
     
-    TableRow simulationRow = table.addRow();
+    TableRow simulationRow = resultsTable.addRow();
     for (Station station : Station.values()) {
-      simulationRow.setFloat(station.name() + "_min", (float) dormStats.get(station).getMin());
-      simulationRow.setFloat(station.name() + "_max", (float) dormStats.get(station).getMax());
-//      simulationRow.setFloat(station.name() + "_mean", (float) dormStats.get(station).getMean());
-//      simulationRow.setFloat(station.name() + "_stDev", (float) dormStats.get(station).getStandardDeviation());
-      simulationRow.setInt(station.name() + "_last", station.getNumBikes());
+      // stats for each station at the end of each simulation
+      int numBikeMin  = (int) stationStats.get(station).getMin();
+      int numBikeMax  = (int) stationStats.get(station).getMax();
+      int numBikeLast = (int) station.getNumBikes();
+      
+      // write into results table
+      simulationRow.setInt(station.name() + "_min", numBikeMin);
+      simulationRow.setInt(station.name() + "_max", numBikeMax);
+      simulationRow.setInt(station.name() + "_last", numBikeLast);
+      
+      // prepare data for summary table
+      stationSummaryStatsMin.get(station).addValue(numBikeMin);
+      stationSummaryStatsMax.get(station).addValue(numBikeMax);
+      stationSummaryStatsLast.get(station).addValue(numBikeLast);
     }
   }
   
-  // write csv
-  saveTable(table, "data/" + name + "_x" + numSimulations + ".csv");
+  // write details csv
+  saveTable(resultsTable, "data/" + name + "_x" + numSimulations + "_details" + ".csv");
+  
+  // write summary csv
+  for (Station station : Station.values()) {
+    TableRow stationRow = summaryTable.addRow();
+    stationRow.setString("Dorm", station.name());
+    stationRow.setInt("min(min)", (int) stationSummaryStatsMin.get(station).getMin());
+    stationRow.setInt("max(max)", (int) stationSummaryStatsMax.get(station).getMax());
+    stationRow.setInt("min(last)", (int) stationSummaryStatsLast.get(station).getMin());
+    stationRow.setInt("max(last)", (int) stationSummaryStatsLast.get(station).getMax());
+  }
+  saveTable(summaryTable, "data/" + name + "_x" + numSimulations + "_summary" + ".csv");
   
   println("Finished running " + numSimulations + " simulations for " + name + ".");
   exit();
