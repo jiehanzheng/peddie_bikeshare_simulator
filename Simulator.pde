@@ -1,11 +1,23 @@
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-final double PARTICIPATION_RATE = 18d/25;
+final double PARTICIPATION_RATE = 21d/28;
 // Mondays, Fridays
+//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CHAPEL,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.LUNCH,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.SPORTS,
+//                                     TransitionType.HOME };
+
+// Tuesdays, Thursdays
 TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.CLASS_PERIOD,
-                                     TransitionType.CHAPEL,
+                                     TransitionType.DMX,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.LUNCH,
                                      TransitionType.CLASS_PERIOD,
@@ -18,18 +30,6 @@ TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
 //                                     TransitionType.CLASS_PERIOD,
 //                                     TransitionType.CLASS_PERIOD,
 //                                     TransitionType.COMMUNITY_MEETING,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.LUNCH,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.SPORTS,
-//                                     TransitionType.HOME };
-
-// Tuesdays, Thursdays
-//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.DMX,
 //                                     TransitionType.CLASS_PERIOD,
 //                                     TransitionType.LUNCH,
 //                                     TransitionType.CLASS_PERIOD,
@@ -217,3 +217,4 @@ void runBatchSimulations(int numSimulations, String name) {
   println("Finished running " + numSimulations + " simulations for " + name + ".");
   exit();
 }
+
