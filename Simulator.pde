@@ -41,7 +41,6 @@ TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
 int currentTransition = -1;
 
 PImage mapImage;
-ArrayList<Student> students;
 
 void setup() {  
   // if the following line is uncommented, all visual components gets disabled
