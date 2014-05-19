@@ -1,30 +1,30 @@
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-final double PARTICIPATION_RATE = 21d/28;
+final double PARTICIPATION_RATE = 21d/29;
 
 // Mondays, Fridays
-//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CHAPEL,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.LUNCH,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.SPORTS,
-//                                     TransitionType.HOME };
-
-// Tuesdays, Thursdays
 TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.CLASS_PERIOD,
-                                     TransitionType.DMX,
+                                     TransitionType.CHAPEL,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.LUNCH,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.CLASS_PERIOD,
                                      TransitionType.SPORTS,
                                      TransitionType.HOME };
+
+// Tuesdays, Thursdays
+//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.DMX,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.LUNCH,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.CLASS_PERIOD,
+//                                     TransitionType.SPORTS,
+//                                     TransitionType.HOME };
 
 // Wednesday
 //TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
@@ -38,30 +38,20 @@ TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
 //                                     TransitionType.SPORTS,
 //                                     TransitionType.HOME };
 
-// Saturdays
-//TransitionType[] transitionQueue = { TransitionType.BREAKFAST,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.CLASS_PERIOD,
-//                                     TransitionType.LUNCH,
-//                                     TransitionType.SPORTS,
-//                                     TransitionType.HOME };
 int currentTransition = -1;
 
 PImage mapImage;
 ArrayList<Student> students;
 
-void setup() {
-  populateStudents();
-  
+void setup() {  
   // if the following line is uncommented, all visual components gets disabled
-  runBatchSimulations(10000, "TueThu");
+//  runBatchSimulations(10000, "MonFri");
   
   mapImage = loadImage("map.png");
   size(mapImage.width/2, mapImage.height/2, "processing.core.PGraphicsRetina2D");
   hint(ENABLE_RETINA_PIXELS);
   
+  populateStudents();
   println("Press J to simulate a transition.");
 }
 
@@ -78,6 +68,9 @@ void populateStudents() {
   addStudentsToBuilding(Building.MARIBOE, 22);
   addStudentsToBuilding(Building.CASPERSEN, 21);
   addStudentsToBuilding(Building.ROBERSON, 8);
+  addStudentsToBuilding(Building.STUD, 194/3);
+  addStudentsToBuilding(Building.SCIENCE, 194/3);
+  addStudentsToBuilding(Building.ANNENBERG, 194/3);
 }
 
 void transition(TransitionType type) {
@@ -169,9 +162,10 @@ void runBatchSimulations(int numSimulations, String name) {
   
   // summary table across all simulations
   Table summaryTable = new Table();
-  summaryTable.addColumn("Dorm");
+  summaryTable.addColumn("Station");
   summaryTable.addColumn("min(min)");
   summaryTable.addColumn("max(max)");
+  summaryTable.addColumn("mean(last)");
   summaryTable.addColumn("min(last)");
   summaryTable.addColumn("max(last)");
   
@@ -245,6 +239,7 @@ void runBatchSimulations(int numSimulations, String name) {
     stationRow.setString("Dorm", station.name());
     stationRow.setInt("min(min)", (int) stationSummaryStatsMin.get(station).getMin());
     stationRow.setInt("max(max)", (int) stationSummaryStatsMax.get(station).getMax());
+    stationRow.setInt("mean(last)", (int) stationSummaryStatsLast.get(station).getMean());
     stationRow.setInt("min(last)", (int) stationSummaryStatsLast.get(station).getMin());
     stationRow.setInt("max(last)", (int) stationSummaryStatsLast.get(station).getMax());
   }

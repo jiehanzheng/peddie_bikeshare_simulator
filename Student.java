@@ -6,9 +6,11 @@ class Student {
   /**
    * Distance longer than which a student would ride a bike
    *
-   * In pixels...we will convert to meters, etc.
+   * In pixels, 
+   * where 638.045px == 631.773yards from Potter South lower right to athletic upper left
+   *    =>       1px == 0.990yards
    */
-  private static final int BIKE_THRESHOLD = 200;
+  private static final double BIKE_THRESHOLD = 434.352;
   
   public static ArrayList<Student> students = new ArrayList<Student>();
   
