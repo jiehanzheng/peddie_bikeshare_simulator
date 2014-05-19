@@ -236,7 +236,7 @@ void runBatchSimulations(int numSimulations, String name) {
   // write summary csv
   for (Station station : Station.values()) {
     TableRow stationRow = summaryTable.addRow();
-    stationRow.setString("Dorm", station.name());
+    stationRow.setString("Station", station.name());
     stationRow.setInt("min(min)", (int) stationSummaryStatsMin.get(station).getMin());
     stationRow.setInt("max(max)", (int) stationSummaryStatsMax.get(station).getMax());
     stationRow.setInt("mean(last)", (int) stationSummaryStatsLast.get(station).getMean());
