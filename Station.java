@@ -16,11 +16,13 @@ enum Station implements Locatable {
   
   private int locationX;
   private int locationY;
+  private final int initialNumBikes;
   private int numBikes;
   
   private Station(int locationX, int locationY, int numBikes) {
     this.locationX = locationX;
     this.locationY = locationY;
+    this.initialNumBikes = numBikes;
     this.numBikes  = numBikes;
   }
   
@@ -40,7 +42,7 @@ enum Station implements Locatable {
   public void takeBike() { numBikes--; }
   public void returnBike() { numBikes++; }
   
-  public void resetNumBikes() { numBikes = 0; }
+  public void resetNumBikes() { numBikes = initialNumBikes; }
   
   public double distanceTo(Locatable another) {
     return Math.sqrt(Math.pow(getX() - another.getX(), 2) + Math.pow(getY() - another.getY(), 2));
